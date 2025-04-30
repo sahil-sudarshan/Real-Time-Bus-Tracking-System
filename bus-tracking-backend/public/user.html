@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Smart Bus Tracking</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome User</h2>
+        <p>You are logged in as a User!</p>
+        <a href="index.html">Go to Live Bus Map</a>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Check if the user is logged in and has user role
+        async function checkUserAccess() {
+            try {
+                const res = await fetch('http://localhost:3000/api/user', {
+                    credentials: 'include'
+                });
+
+                if (!res.ok) throw new Error('Unauthorized');
+                
+                const data = await res.json();
+                console.log("Logged in as:", data.username);
+
+                // If the role is not 'user', redirect to login
+                if (data.role !== 'user') {
+                    alert('Access denied!');
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Logout the user
+        async function logout() {
+            try {
+                await fetch('http://localhost:3000/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = 'login.html';
+            } catch (err) {
+                console.error('Logout failed:', err);
+            }
+        }
+
+        // Check access on page load
+        checkUserAccess();
+    </script>
+</body>
+</html>

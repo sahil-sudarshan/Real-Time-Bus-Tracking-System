@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Bus Tracker</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <header>
+    <h1>Real-Time Bus Tracker</h1> 
+    <button onclick="logout()">Logout</button> 
+    
+
+  </header>
+
+  <main>
+    <div id="map" style="height: 90vh; width: 100%;"></div>
+  </main>
+
+  <!-- User Info Section -->
+  <div id="user-info" style="margin: 10px; padding: 10px;">
+    <p><strong>Logged in as:</strong> <span id="username"></span></p>
+    <p><strong>Role:</strong> <span id="role"></span></p>
+  </div>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBa5MUa7z7tdSPeVZ6bbn_7ebAhDFRo7uI&callback=initMap"
+    async defer></script>
+
+  <!-- Socket.IO client -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+    // Check session and populate user info
+    async function fetchUserInfo() {
+      try {
+        const response = await fetch('http://localhost:3000/api/user', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) throw new Error('Not logged in');
+
+        const data = await response.json();
+        document.getElementById('username').textContent = data.username;
+        document.getElementById('role').textContent = data.role;
+
+        console.log("✅ Logged in as:", data.username, `(Role: ${data.role})`);
+      } catch (error) {
+        alert('Session expired. Please log in again.');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Logout user
+    async function logout() {
+      await fetch('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = 'login.html';
+    }
+
+    // Call on page load
+    window.onload = fetchUserInfo;
+  </script>
+
+  <!-- Custom Map Script -->
+  <script src="map.js"></script>
+</body>
+</html>
